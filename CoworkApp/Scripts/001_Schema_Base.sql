@@ -1,5 +1,8 @@
 -- ========================================================
--- SISTEMA DE GESTIÓN DE COWORKING - INICIALIZACIÓN
+-- 001_Schema_Base.sql — esquema original, sin cambios (REF-12)
+-- Idempotente: sólo crea lo que no existe.
+-- Las columnas de texto siguen en VARCHAR acá a propósito;
+-- el ticket que las corrige es 003_Refactor_Unicode.sql.
 -- ========================================================
 IF DB_ID('iset') IS NULL BEGIN
 CREATE DATABASE iset;
@@ -7,8 +10,13 @@ CREATE DATABASE iset;
 END
 GO
 USE iset;
+GO
 
-GO IF NOT EXISTS (
+-- sqlcmd trae QUOTED_IDENTIFIER OFF; los índices filtrados lo exigen en ON.
+SET QUOTED_IDENTIFIER ON;
+
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -21,7 +29,8 @@ GO IF NOT EXISTS (
 CREATE TABLE Roles (Id INT IDENTITY(1, 1) PRIMARY KEY, Nombre VARCHAR(50) UNIQUE NOT NULL);
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -34,7 +43,8 @@ GO IF NOT EXISTS (
 CREATE TABLE EstadosTurno (Id INT IDENTITY(1, 1) PRIMARY KEY, Nombre VARCHAR(50) UNIQUE NOT NULL);
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -55,7 +65,8 @@ CREATE TABLE Usuarios (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -68,7 +79,8 @@ GO IF NOT EXISTS (
 CREATE TABLE Edificios (Id INT IDENTITY(1, 1) PRIMARY KEY, Nombre VARCHAR(100) NOT NULL, Direccion NVARCHAR(255) NOT NULL, Ciudad VARCHAR(100) NOT NULL);
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -86,7 +98,8 @@ CREATE TABLE SupervisorEdificios (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -105,7 +118,8 @@ CREATE TABLE Pisos (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -126,7 +140,8 @@ CREATE TABLE Oficinas (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -150,7 +165,8 @@ CREATE TABLE Turnos (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -170,7 +186,8 @@ CREATE TABLE ValidacionesSupervisor (
 );
 
 END
-GO IF NOT EXISTS (
+GO
+IF NOT EXISTS (
 	SELECT
 		1
 	FROM
@@ -224,101 +241,3 @@ IF NOT EXISTS (
 		AND object_id = OBJECT_ID('Oficinas')
 ) CREATE NONCLUSTERED
 INDEX IX_Oficinas_PisoId ON Oficinas (PisoId);
-
-GO IF NOT EXISTS (
-	SELECT
-		1
-	FROM
-		dbo.Roles
-)
-INSERT INTO
-	dbo.Roles (Nombre)
-VALUES
-	('admin'),
-	('supervisor'),
-	('cliente');
-
-IF NOT EXISTS (
-	SELECT
-		1
-	FROM
-		dbo.EstadosTurno
-)
-INSERT INTO
-	dbo.EstadosTurno (Nombre)
-VALUES
-	('activo'),
-	('finalizado'),
-	('cancelado'),
-	('vencido');
-
-IF NOT EXISTS (
-	SELECT
-		1
-	FROM
-		dbo.Edificios
-)
-INSERT INTO
-	dbo.Edificios (Nombre, Direccion, Ciudad)
-VALUES
-	(N'Torre Central', N'Av. Principal 123', N'Madrid'),
-	(N'Edificio Norte', N'Calle Secundaria 45', N'Madrid');
-
-IF NOT EXISTS (
-	SELECT
-		1
-	FROM
-		dbo.Pisos
-)
-INSERT INTO
-	dbo.Pisos (EdificioId, Numero, Descripcion)
-VALUES
-	(1, 1, N'Planta Baja'),
-	(1, 2, N'Primera Planta'),
-	(2, 1, N'Planta Baja');
-
-IF NOT EXISTS (
-	SELECT
-		1
-	FROM
-		dbo.Oficinas
-)
-INSERT INTO
-	dbo.Oficinas (PisoId, Nombre, Tipo, CapacidadTotal, PrecioPorMinuto, Activa)
-VALUES
-	(1, N'Open Space A', N'escritorio_compartido', 6, 0.0500, 1),
-	(2, N'Oficina Privada 201', N'oficina_privada', 4, 0.1200, 1),
-	(3, N'Sala de Reuniones Norte', N'sala_reuniones', 8, 0.1500, 1);
-
-GO
-SELECT
-	'Roles' AS Tabla,
-	COUNT(*) AS Registros
-FROM
-	dbo.Roles
-UNION ALL
-SELECT
-	'EstadosTurno',
-	COUNT(*)
-FROM
-	dbo.EstadosTurno
-UNION ALL
-SELECT
-	'Edificios',
-	COUNT(*)
-FROM
-	dbo.Edificios
-UNION ALL
-SELECT
-	'Pisos',
-	COUNT(*)
-FROM
-	dbo.Pisos
-UNION ALL
-SELECT
-	'Oficinas',
-	COUNT(*)
-FROM
-	dbo.Oficinas;
-
-GO
