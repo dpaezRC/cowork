@@ -426,3 +426,8 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Config local: cadena de conexión con credenciales (ver AGENTS.md regla 9)
+appsettings.json
+appsettings.*.json
+!appsettings.example.json

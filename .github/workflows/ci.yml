@@ -23,12 +23,27 @@ jobs:
         dotnet-version: 10.0.x
         cache: true
         cache-dependency-path: '**/*.csproj'
+    # TODO(revert): host temporal de LAN — borrar este paso cuando vuelva a localhost
+    - name: Write appsettings.json (DB host 192.168.1.98)
+      shell: bash
+      run: |
+        cat > CoworkApp/appsettings.json <<'EOF'
+        {
+          "ConnectionStrings": {
+            "Default": "Server=192.168.1.98,1433;Database=iset;User Id=sa;Password=yourStrong#Password;TrustServerCertificate=True;"
+          },
+          "Sesion": {
+            "MinutosInactividad": 30
+          }
+        }
+        EOF
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore --configuration Release
+    - name: Test
+      run: dotnet test CoworkApp.Tests/CoworkApp.Tests.csproj --no-build --configuration Release --verbosity normal
     - name: Publish
-      if: github.event_name == 'push'
       run: >
         dotnet publish CoworkApp/CoworkApp.csproj
         -c Release -r win-x64
@@ -37,10 +52,9 @@ jobs:
         -p:PublishTrimmed=false
         -o ./publish
     - name: Upload artifact
-      if: github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
-        name: CoworkApp-win-x64-${{ github.ref_name }}
+        name: CoworkApp-win-x64-${{ github.event.pull_request.number || github.run_number }}
         path: ./publish
         if-no-files-found: error
         retention-days: 14
