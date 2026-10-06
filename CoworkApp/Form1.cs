@@ -51,8 +51,8 @@ namespace CoworkApp
                 var dt = new DataTable();
                 adapter.Fill(dt);
                 dgvOficinas.DataSource = dt;
-                if (dgvOficinas.Columns.Contains("Precio/Minuto (€)"))
-                    dgvOficinas.Columns["Precio/Minuto (€)"].DefaultCellStyle.Format = "N4";
+                if (dgvOficinas.Columns["Precio/Minuto (€)"] is { } colPrecio)
+                    colPrecio.DefaultCellStyle.Format = "N4";
                 MessageBox.Show($"Conexión exitosa. Oficinas activas cargadas: {dt.Rows.Count}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (SqlException ex)
