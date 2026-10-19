@@ -11,6 +11,11 @@
 *.sln.docstates
 *.env
 
+# Configuracion local
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -426,3 +431,4 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+.docker/
